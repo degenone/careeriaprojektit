@@ -1,0 +1,34 @@
+﻿@model WebAppTilausDB.Models.Tilausrivit
+
+<div class="modal" id="divTilausModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tilausrivin poisto</h2>
+            </div>
+            <div class="modal-body">
+                <h3>Oletko varma, että haluat poistaa tilausrivin ID:@Html.DisplayFor(model => model.TilausriviID)?</h3>
+                <dl class="dl-horizontal">
+                    <dt>@Html.DisplayNameFor(model => model.TilausID)</dt>
+                    <dd>@Html.DisplayFor(model => model.TilausID)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Tilaukset.Toimitusosoite)</dt>
+                    <dd>@Html.DisplayFor(model => model.Tilaukset.Toimitusosoite)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Tuotteet.Nimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Tuotteet.Nimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Maara)</dt>
+                    <dd>@Html.DisplayFor(model => model.Maara)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Ahinta)</dt>
+                    <dd>@Html.DisplayFor(model => model.Ahinta)</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" value="Poista" class="btn btn-danger"><img src="~/Content/Icons/trash.svg" /></button>
+                }
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

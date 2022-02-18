@@ -1,0 +1,6 @@
+.nwCustomers,
+.nwProducts {
+    padding: 0% 1vw;
+    height: 80vh;
+    overflow-y: auto;
+}

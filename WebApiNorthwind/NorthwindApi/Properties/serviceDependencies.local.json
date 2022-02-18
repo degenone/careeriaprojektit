@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "secrets1": {
+      "type": "secrets.user"
+    },
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/reactnorthwind/databases/Northwind",
+      "type": "mssql.azure",
+      "connectionId": "NorthwindContext",
+      "secretStore": "LocalSecretsFile"
+    },
+    "mssql2": {
+      "type": "mssql",
+      "connectionId": "NorthwindContext_local",
+      "suggestion": "true",
+      "ignored": "true"
+    }
+  }
+}

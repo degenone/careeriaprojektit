@@ -1,0 +1,15 @@
+.Viestit {
+    text-align: center;
+    background-color: rgb(13, 120, 153);
+    height: 80vh;
+}
+
+.Viestit-header {
+    background-color: rgb(40, 46, 71);
+}
+
+.Viestit-header h3 {
+    margin-bottom: 0%;
+    padding-bottom: 18.72px;
+    font-size: xx-large;
+}

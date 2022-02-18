@@ -1,0 +1,60 @@
+.App {
+    text-align: center;
+}
+/* --- LOGO --- */
+.App-logo {
+    animation: App-logo-spin infinate 20s linear;
+    height: 35vmin;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes App-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+/* --- NAPIN KEINUMINEN --- */
+.btn-wobbly[wobble='1'] {
+    animation: wobble 1s 1;
+}
+
+@keyframes wobble {
+    25% {
+      transform: rotate(15deg);
+    }
+    50% {
+      transform: rotate(-30deg);
+    }
+    75% {
+      transform: rotate(5deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+}
+
+.Aika {
+    position: relative;
+}
+
+time {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    border-radius: 50%;
+    background-color: white;
+    z-index: 1;
+}
+
+@media screen and (max-width: 1180px) {
+}

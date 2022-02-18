@@ -1,0 +1,78 @@
+﻿@model IEnumerable<WebAppTilausDB.Models.Postitoimipaikat>
+
+@{
+    ViewBag.Count = 0;
+    ViewBag.Title = "Postitoimipaikat";
+}
+<div id="sidebar" class="bg-primary"><div id="sidebar-content" class="bg-dark"></div></div>
+<h2 id="otsikko">Postitoimipaikat</h2>
+@if (Session["Oikeudet"].Equals("Muokkaa") || Session["Oikeudet"].Equals("Admin"))
+{
+    <p>
+        <a id="ptpCreate" class="btn btn-primary"><img src="~/Content/Icons/file-plus.svg" /></a>
+    </p>
+}
+<div class="container-fluid">
+    <div id="ptpRivit" class="row">
+        @{ Html.RenderAction("_PostitoimipaikatPartial", "Postitoimipaikat", new { ptp = Model }); }
+    </div>
+</div>
+<div id="loadingdiv" style="text-align:center;display:none;margin-bottom:20px;">Ladataan...</div>
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home") |
+    <a href="#otsikko">Takaisin ylös</a>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        var sideOpen = false;
+        var lastEvent;
+        var pageIndex = 2;
+        var noMoreData = false, inProgress = false;
+        $(window).scroll(function () {
+            let at = $(window).scrollTop() + Number($(window).height());
+            let loadAt = Number($(document).height()) * 0.9;
+            if (at > loadAt && !noMoreData && !inProgress) {
+                inProgress = true;
+                $("#loadingdiv").show();
+                $.post(`/Postitoimipaikat/InfinateScroll/?page=${this.pageIndex}`, function (data) {
+                    pageIndex++;
+                    noMoreData = data.NoMoreData
+                    $('#ptpRivit').append(data.HTMLString);
+                    $("#loadingdiv").hide();
+                    inProgress = false;
+                });
+            }
+        });
+        $("#ptpCreate").click(function () {
+            let url = '/Postitoimipaikat/_CreatePartial';
+            $.get(url, function (data) {
+                if (!sideOpen || lastEvent == 'create') {
+                    document.getElementById('sidebar').classList.toggle('open');
+                    document.getElementById('sidebar-content').classList.toggle('open');
+                    sideOpen = !sideOpen;
+                }
+                lastEvent = 'create';
+                document.getElementById('sidebar-content').innerHTML = data;
+            });
+        });
+        function ptpEditOrDelete(postinro) {
+            let url = `/Postitoimipaikat/_EditOrDelete/${postinro}`;
+            $.get(url, function (data) {
+                if (!sideOpen || lastEvent == postinro) {
+                    document.getElementById('sidebar').classList.toggle('open');
+                    document.getElementById('sidebar-content').classList.toggle('open');
+                    sideOpen = !sideOpen;
+                }
+                document.getElementById('sidebar-content').innerHTML = data;
+                lastEvent = postinro;
+            });
+        }
+        function ptpSulje() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-content').classList.toggle('open');
+            sideOpen = false;
+            lastEvent = 'closed';
+        }
+    </script>
+}

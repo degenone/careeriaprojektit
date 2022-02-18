@@ -1,0 +1,38 @@
+﻿@model WebAppTilausDB.Models.Asiakkaat
+
+<div class="modal" id="divAsiakasModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Asiakkaan poisto</h2>
+            </div>
+            <div class="modal-body">
+                <h3>Oletko varma, että haluat poistaa asiakkaan ID:@Html.DisplayFor(model => model.AsiakasID)?</h3>
+                <dl class="dl-horizontal">
+                    <dt>@Html.DisplayNameFor(model => model.Nimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Nimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Osoite)</dt>
+                    <dd>@Html.DisplayFor(model => model.Osoite)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postitoimipaikka)</dt>
+                    <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postitoimipaikka)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postinumero)</dt>
+                    <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postinumero)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Vastuumyyja)</dt>
+                    <dd>@Html.DisplayFor(model => model.VastuumyyjaNimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Luottoraja)</dt>
+                    <dd>@Html.DisplayFor(model => model.Luottoraja)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.www_sivut)</dt>
+                    <dd>@Html.DisplayFor(model => model.www_sivut)</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" value="Delete" class="btn btn-danger"><img src="~/Content/Icons/trash-fill.svg" /></button>
+                }
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+﻿@model WebAppTilausDB.ViewModels.TuoteModel
+
+@{
+    ViewBag.Title = "Muokkaa tuotetietoja";
+    if (Model.TuoteTieto.Kuva != null)
+    {
+        ViewBag.Kuva = String.Format("data:image/gif;base64,{0}", Convert.ToBase64String(Model.TuoteTieto.Kuva));
+    }
+    else
+    {
+        ViewBag.Kuva = "/Content/Images/placeholder.jpg";
+    }
+}
+<div class="modal" id="divTuotteetModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Muokkaatuotteen ID:@(Model.TuoteTieto.TuoteID) tuotetietoja</h2>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Edit", "Tuotteet", FormMethod.Post, new { enctype = "multipart/form-data", @id = "tuoteEditForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.TuoteTieto.TuoteID)
+                    <form>
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TuoteTieto.Nimi, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.TuoteTieto.Nimi, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.TuoteTieto.Nimi, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TuoteTieto.Ahinta, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.TuoteTieto.Ahinta, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.TuoteTieto.Ahinta, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TuoteTieto.Kuva, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                <img src="@ViewBag.Kuva" class="tuotekuva" alt="Tuotekuva" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.KuvaTiedosto, "Muokkaa kuvaa", htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                <input type="file" name="KuvaTiedosto" accept="image/*" />
+                            </div>
+                            <div class="col-md-10">
+                                @Html.ValidationMessageFor(model => model.KuvaTiedosto, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" form="tuoteEditForm"><img src="~/Content/Icons/check-box.svg" /></button>
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

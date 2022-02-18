@@ -1,0 +1,179 @@
+﻿@model IEnumerable<WebAppTilausDB.Models.Tuotteet>
+
+@{
+    ViewBag.Title = "Tuotteet";
+}
+
+<h2 id="otsikko">Tuotteet</h2>
+<p class="text-danger">@ViewBag.TuoteVirhe</p>
+@using (Html.BeginForm("Index", "Tuotteet", FormMethod.Get))
+{
+    <div class="input-group">
+        <p class="px-1">@Html.Label("Etsi tuotetta nimen perusteella:")</p>
+        <p class="px-1">@Html.TextBox("tuoteFilter", ViewBag.TuoteFilter as string, new { @class = "form-control" })</p>
+        <p class="px-1"><input type="submit" value="Etsi" class="form-control" /></p>
+    </div>
+}
+<p>
+    @if (Session["Oikeudet"].Equals("Muokkaa") || Session["Oikeudet"].Equals("Admin"))
+    {
+        <a id="tuoteCreateToModal" class="btn btn-primary"><img src="~/Content/Icons/file-plus.svg" /></a>
+    }
+    <a class="btn btn-lg btn-primary fas fa-chart-bar" style="color:black;" id="TopMyynti" title="Myydyimmät tuotteet"></a>
+</p>
+<div class="container-fluid">
+    <div id="tuoteRivit" class="row">
+        @{ Html.RenderAction("_TuotteetPartial", "Tuotteet", new { tuotteet = Model }); }
+    </div>
+</div>
+<div id="loadingdiv" style="text-align:center;display:none;margin-bottom:20px;">Ladataan...</div>
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home") |
+    <a href="#otsikko">Takaisin ylös</a>
+</div>
+<div id="divTuotteetModal"></div>
+@{ Html.RenderPartial("_ChartModal"); }
+@section scripts{
+    <script type="text/javascript">
+        var pageIndex = 2;
+        var noMoreData = false, inProgress = false;
+        $(window).scroll(function () {
+            let at = $(window).scrollTop() + Number($(window).height());
+            let loadAt = Number($(document).height()) * 0.9;
+            if (at > loadAt && !noMoreData && !inProgress) {
+                inProgress = true;
+                $("#loadingdiv").show();
+                let filter = document.getElementById('tuoteFilter').value;
+                console.log(filter);
+                $.post(`/Tuotteet/InfinateScroll/?page=${this.pageIndex}&tuoteFilter=${filter}`, function (data) {
+                    pageIndex++;
+                    noMoreData = data.NoMoreData
+                    $('#tuoteRivit').append(data.HTMLString);
+                    $("#loadingdiv").hide();
+                    inProgress = false;
+                });
+            }
+        });
+        $('#tuoteCreateToModal').click(function () {
+            let url = '/Tuotteet/_CreatePartial';
+            $.get(url, (data) => {
+                $("#divTuotteetModal").replaceWith(data);
+                $("#divTuotteetModal").modal('show');
+            });
+        });
+        function tuoteEditToModal(tuoteId) {
+            let url = '/Tuotteet/_EditPartial/' + tuoteId;
+            $.get(url, (data) => {
+                $("#divTuotteetModal").replaceWith(data);
+                $("#divTuotteetModal").modal('show');
+            });
+        }
+        function tuoteDetailsToModal(tuoteId) {
+            let url = '/Tuotteet/_DetailsPartial/' + tuoteId;
+            $.get(url, (data) => {
+                $("#divTuotteetModal").replaceWith(data);
+                $("#divTuotteetModal").modal('show');
+            });
+        }
+        function tuoteDeleteToModal(tuoteId) {
+            let url = '/Tuotteet/_DeletePartial/' + tuoteId;
+            $.get(url, (data) => {
+                $("#divTuotteetModal").replaceWith(data);
+                $("#divTuotteetModal").modal('show');
+            });
+        }
+        const ctx = document.getElementById('MyyntiChart').getContext('2d');
+        var config = {
+            type: 'line',
+            data: {
+                datasets: [{
+                    backgroundColor: '#df691a80',
+                    borderColor: '#df691a',
+                    borderWidth: 2,
+                    pointRadius: 15,
+                    pointHoverRadius: 10,
+                }]
+            },
+            options: {
+                legend: {
+                    labels: {
+                        fontColor: 'white',
+                        fontSize: 14
+                    }
+                },
+                tooltips: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                scales: {
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: 'white',
+                            fontsize: 14
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Euroa €',
+                            fontColor: 'white',
+                            fontsize: 14
+                        }
+                    }],
+                    xAxes: [{
+                        display: true,
+                        ticks: {
+                            fontColor: 'white',
+                            fontsize: 14
+                        },
+                        scaleLabel: {
+                            fontColor: 'white',
+                            fontsize: 14
+                        }
+                    }]
+                }
+            }
+        };
+        $(window).on('load', function () {
+            window.tuoteChart = new Chart(ctx, config);
+        });
+        function drawChart(tuoteId, nimi) {
+            let url = `/Tuotteet/_JsonViikkoMyynti/${tuoteId}`;
+            $.ajax({
+                url: url,
+                dataType: 'json'
+            }).done((result) => {
+                if (config.type != 'line') {
+                    config.type = 'line';
+                }
+                config.data.labels = ['maanantai', 'tiistai', 'keskiviikko', 'torstai', 'perjantai', 'lauantai', 'sunnuntai'];
+                config.data.datasets[0].label = nimi;
+                config.data.datasets[0].data = result;
+                window.tuoteChart.update();
+                $('#chartModal').modal('show');
+            });
+        }
+        $('#TopMyynti').click(function () {
+            let url = '/Tuotteet/_JsonMyydymmatTuotteet';
+            $.get(url, (data) => {
+                let dataLabels = [], salesData = []
+                data.forEach(x => {
+                    dataLabels.push(x.Nimi);
+                    salesData.push(x.Myynti);
+                });
+                config.data.labels = dataLabels;
+                config.data.datasets[0].label = 'Myydyimmät Tuotteet';
+                config.data.datasets[0].data = salesData;
+                if (config.type != 'bar') {
+                    config.type = 'bar';
+                }
+                window.tuoteChart.update();
+                $('#chartModal').modal('show');
+            });
+        });
+    </script>
+}

@@ -1,0 +1,152 @@
+﻿@model PagedList.PagedList<WebAppTilausDB.Models.Tilaukset>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Tilaukset";
+    ViewBag.Count = 0;
+    Culture = UICulture = "fi-FI";
+}
+<h2 id="otsikko">Tilaukset</h2>
+
+<p class="text-danger">@ViewBag.TilausVirhe</p>
+<p class="text-danger">@ViewBag.TilausriviVirhe</p>
+@using (Html.BeginForm("Index", "Tilaukset", FormMethod.Get))
+{
+    <div class="input-group">
+        <p class="px-1">@Html.Label("Etsi tilausta asiakkaan nimen perusteella:")</p>
+        <p class="px-1">@Html.TextBox("asiakasFilter", ViewBag.AsiakasFilter as string, new { @class = "form-control" })</p>
+        <p class="px-1"><input type="submit" value="Etsi" class="form-control" /></p>
+    </div>
+}
+<div class="container-fluid">
+    <div class="card-header container">
+        <form class="row">
+            <div class="input-group">
+                <div class="col-2 pr-0">
+                    <a id="tilausCreateToModal" class="btn btn-primary @(Session["Oikeudet"].Equals("Näytä") ? "disabled" : "")"><img src="~/Content/Icons/file-plus.svg" /></a>
+                </div>
+                <div class="input-group col-10 pl-0">
+                    <input type="text" class="form-control bg-warning font-weight-bold" value="Asiakas" disabled />
+                    <input type="text" class="form-control bg-warning font-weight-bold" value="Tilattu" disabled />
+                    <input type="text" class="form-control bg-warning font-weight-bold" value="Toimitettu" disabled />
+                    <input type="text" class="form-control bg-warning font-weight-bold" value="Toimitusosoite" disabled />
+                    <input type="text" class="form-control bg-warning font-weight-bold" value="Postitoimipaikka" disabled />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="accordion">
+        @foreach (var item in Model)
+        {
+            { 
+                var tilpvm = (DateTime)item.Tilauspvm;
+                ViewBag.StrTilpvm = tilpvm.ToString("dd.MM.yyyy");
+                var toipvm = (DateTime)item.Toimituspvm;
+                ViewBag.StrToipvm = toipvm.ToString("dd.MM.yyyy");
+            }
+            <div class="card">
+                <div class="card-header container">
+                    <form class="row">
+                        <div class="col-2 pr-0">
+                            @if (Session["Oikeudet"].Equals("Näytä"))
+                            {
+                                <a class="btn btn-primary tilausDetailsToModal" data-tilausid="@item.TilausID"><img src="~/Content/Icons/info-square.svg" /></a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-primary tilausEditToModal" data-tilausid="@item.TilausID"><i class="fas fa-edit"></i></a>
+                                <a class="btn btn-primary tilausDetailsToModal" data-tilausid="@item.TilausID"><img src="~/Content/Icons/info-square.svg" /></a>
+                                <a class="btn btn-primary tilausDeleteToModal" data-tilausid="@item.TilausID"><img src="~/Content/Icons/trash.svg" /></a>
+                            }
+                        </div>
+                        <div class="col-10 pl-0">
+                            <a class="card-link showTilausRivit" data-tilausid="@item.TilausID" data-toggle="collapse" href="#collapse_@item.TilausID">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="@item.Asiakkaat.Nimi" disabled />
+                                    <input type="text" class="form-control" value="@ViewBag.StrTilpvm" disabled />
+                                    <input type="text" class="form-control" value="@ViewBag.StrToipvm" disabled />
+                                    <input type="text" class="form-control" value="@item.Toimitusosoite" disabled />
+                                    <input type="text" class="form-control" value="@item.Postitoimipaikat.Postitoimipaikka" disabled />
+                                </div>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div id="collapse_@item.TilausID" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
+                        <div id="tilausrivit_@item.TilausID"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div id="divTilausModal"></div>
+<br />
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home")
+</div>
+Sivu @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, asiakasFilter = ViewBag.AsiakasFilter }))
+@section scripts{
+    <script type="text/javascript">
+        $('.showTilausRivit').click(function () {
+            let tilausId = $(this).data("tilausid");
+            let url = '/Tilaukset/_TilausRivit/?Id=' + tilausId;
+            $.get(url, (data) => {
+                $('#tilausrivit_' + tilausId).html(data);
+            });
+        });
+        $("#tilausCreateToModal").click(function () {
+            let url = '/Tilaukset/_CreatePartial';
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        });
+        $(".tilausEditToModal").click(function () {
+            let tilausId = $(this).data("tilausid");
+            let url = '/Tilaukset/_EditPartial/' + tilausId;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        });
+        $(".tilausDetailsToModal").click(function () {
+            let tilausId = $(this).data("tilausid");
+            let url = '/Tilaukset/_DetailsPartial/' + tilausId;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        });
+        $(".tilausDeleteToModal").click(function () {
+            let tilausId = $(this).data("tilausid");
+            let url = '/Tilaukset/_DeletePartial/' + tilausId;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        });
+        function tilausriviCreateToModal(tilausId) {
+            let url = `/Tilausrivit/_CreatePartial/?tilausId=${tilausId}`;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        }
+        function tilausriviEditToModal(tilausriviId) {
+            let url = '/Tilausrivit/_EditPartial/' + tilausriviId;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        }
+        function tilausriviDeleteToModal(tilausriviId) {
+            let url = '/Tilausrivit/_DeletePartial/' + tilausriviId;
+            $.get(url, (data) => {
+                $("#divTilausModal").replaceWith(data);
+                $("#divTilausModal").modal('show');
+            });
+        }
+    </script>
+}

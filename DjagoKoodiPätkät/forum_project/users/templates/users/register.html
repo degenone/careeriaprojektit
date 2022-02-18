@@ -1,0 +1,22 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+<div class="card">
+    <h4 class="card-header">Rekisteröidy</h4>
+    <form method="POST" id="register-form" class="card-body mx-5 d-grid gap-2">
+        {{ form.non_field_errors }}
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group col-md-6">
+                {{ field.errors }}
+                <label for="{{ field.auto_id }}" class="{{ form.label_class }}">{{ field.label }}</label>
+                {{ field }}
+                <small class="text-muted">{{ field.help_text|safe }}</small>
+            </div>
+        {% endfor %}
+    </form>
+    <div class="card-footer ps-5">
+        <button type="submit" form="register-form" class="btn btn-outline-info mx-3">Rekisteröidy</button>
+        <small class="text-muted">Onko sinulla jo tili? <a href="#" class="ml-2">Kirjaudu sisään</a></small>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,26 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+<div class="card">
+    <h4 class="card-header">Kirjaudu sisään</h4>
+    <form method="POST" class="card-body mx-5 pb-4 d-grid gap-2" id="login-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-group col-md-6">
+            {{ form.username.errors }}
+            <label class="form-label" for="{{ form.username.id_for_label }}">Käyttäjänimi:</label>
+            <input type="text" name="username" id="{{ form.username.auto_id }}" autocomplete="username" autocapitalize="none" autofocus maxlength="150" required class="form-control" value="{% if form.username.value %}{{ form.username.value }}{% endif %}">
+        </div>
+        <div class="form-group col-md-6">
+            {{ form.password.errors }}
+            <label class="form-label" for="{{ form.password.id_for_label }}">Salasana:</label>
+            <input type="password" name="password" id="{{ form.password.auto_id }}" required autocomplete="current-password" class="form-control">
+        </div>
+    </form>
+    <div class="card-footer ps-5">
+        <button type="submit" form="login-form" class="btn btn-outline-info mx-3">Lähetä</button>
+        <small class="text-muted">
+            Eikö sinulla ole tiliä? <a href="{% url 'register' %}" class="ml-2">Rekisteröidy</a>
+        </small>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,18 @@
+﻿<div class="alert alert-danger text-center @cssErrorOn">
+    @if (string.IsNullOrWhiteSpace(ErrorMsg))
+    {
+        <text>Could not connect to Raspberry Pi. Please make sure the details are correct, it is connected, and the Api is running.</text>
+    }
+    else
+    {
+        @ErrorMsg
+    }
+</div>
+
+@code {
+    [Parameter]
+    public bool ErrorOn { get; set; }
+    [Parameter]
+    public string ErrorMsg { get; set; }
+    private string cssErrorOn => ErrorOn ? "" : "hidden-elem";
+}

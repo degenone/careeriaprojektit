@@ -1,0 +1,41 @@
+﻿@model WebAppTilausDB.Models.Tuotteet
+
+@{
+    ViewBag.Title = "Tuotteen poisto";
+    if (Model.Kuva != null)
+    {
+        ViewBag.Kuva = String.Format("data:image/gif;base64,{0}", Convert.ToBase64String(Model.Kuva));
+    }
+    else
+    {
+        ViewBag.Kuva = "/Content/Images/placeholder.jpg";
+    }
+}
+<div class="modal" id="divTuotteetModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tuotteen poisto</h2>
+            </div>
+            <div class="modal-body">
+                <h3>Oletko varma, että haluat poistaa tuotteen ID:@Html.DisplayFor(model => model.TuoteID)?</h3>
+                <dl class="dl-horizontal">
+                    <dt>@Html.DisplayNameFor(model => model.Nimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Nimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Ahinta)</dt>
+                    <dd>@Html.DisplayFor(model => model.Ahinta)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Kuva)</dt>
+                    <dd><img src="@ViewBag.Kuva" class="tuotekuva" alt="Tuotekuva" /></dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" value="Poista" class="btn btn-danger"><img src="~/Content/Icons/trash-fill.svg" /></button>
+                }
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

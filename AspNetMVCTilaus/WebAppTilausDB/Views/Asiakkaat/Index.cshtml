@@ -1,0 +1,101 @@
+﻿@model PagedList.PagedList<WebAppTilausDB.Models.Asiakkaat>
+@using PagedList.Mvc;
+@{
+    ViewBag.Count = 0;
+    ViewBag.Title = "Asiakkaat";
+}
+
+<h2 id="otsikko">Asiakkaat</h2>
+<p class="text-danger">@ViewBag.AsiakasVirhe</p>
+@using (Html.BeginForm("Index", "Asiakkaat", FormMethod.Get))
+{
+    <div class="input-group">
+        <p class="px-1">@Html.Label("Etsi asiakasta nimen perusteella:")</p>
+        <p class="px-1">@Html.TextBox("asiakasNimiFilter", ViewBag.AsiakasNimiFilter as string, new { @class = "form-control" })</p>
+        <p class="px-1"><input type="submit" value="Etsi" class="form-control"/></p>
+    </div>
+}
+<table class="table table-hover">
+    <tr class="table-primary">
+        <th><a id="asiakasCreateToModal" class="btn btn-sm btn-primary @(Session["Oikeudet"].Equals("Näytä") ? "disabled" : "")"><img src="~/Content/Icons/file-plus.svg" /></a></th>
+        <th>Nimi</th>
+        <th>Osoite</th>
+        <th>Postitoimipaikka</th>
+        <th>Vastuumyyja</th>
+        <th>@Html.ActionLink("Luottoraja", "Index", new { sortDirection = ViewBag.SortDirection, nimiFilter = ViewBag.AsiakasNimiFilter })</th>
+        <th>Www-sivut</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="@(ViewBag.Count % 2 != 0 ? "table-dark" : "table-default")">
+            <td>
+                @if (Session["Oikeudet"].Equals("Näytä"))
+                {
+                    <a class="btn btn-sm btn-primary asiakasDetailsToModal" data-asiakasid="@item.AsiakasID"><img src="~/Content/Icons/info-square.svg" /></a>
+                }
+                else
+                {
+                    <a class="btn btn-sm btn-primary asiakasEditToModal" data-asiakasid="@item.AsiakasID"><i class="fas fa-edit"></i></a>
+                    <a class="btn btn-sm btn-primary asiakasDetailsToModal" data-asiakasid="@item.AsiakasID"><img src="~/Content/Icons/info-square.svg" /></a>
+                    <a class="btn btn-sm btn-primary asiakasDeleteToModal" data-asiakasid="@item.AsiakasID"><img src="~/Content/Icons/trash-fill.svg" /></a>
+                }
+            </td>
+            <td>@Html.DisplayFor(modelItem => item.Nimi)</td>
+            <td>@Html.DisplayFor(modelItem => item.Osoite)</td>
+            <td>@Html.DisplayFor(modelItem => item.Postitoimipaikat.Postitoimipaikka)</td>
+            <td>@Html.DisplayFor(modelItem => item.VastuumyyjaNimi)</td>
+            <td>@Html.DisplayFor(modelItem => item.Luottoraja)</td>
+            <td><a href="@item.www_sivut" target="_blank">@Html.DisplayFor(modelItem => item.www_sivut)</a></td>
+        </tr>
+        ViewBag.Count++;
+    }
+
+</table>
+<div id="divAsiakasModal"></div>
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home")
+</div>
+
+Sivu @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { 
+    page,
+    asiakasNimiFilter = ViewBag.AsiakasNimiFilter,
+    sortDirection = ViewBag.CurrentSort 
+}))
+
+@section scripts{
+    <script type="text/javascript">
+        $("#asiakasCreateToModal").click(function () {
+            let url = '/Asiakkaat/_CreatePartial';
+            $.get(url, (data) => {
+                $("#divAsiakasModal").replaceWith(data);
+                $("#divAsiakasModal").modal('show');
+            });
+        });
+        $(".asiakasEditToModal").click(function () {
+            let asiakasId = $(this).data("asiakasid");
+            let url = '/Asiakkaat/_EditPartial/' + asiakasId;
+            $.get(url, (data) => {
+                $("#divAsiakasModal").replaceWith(data);
+                $("#divAsiakasModal").modal('show');
+            });
+        });
+        $(".asiakasDetailsToModal").click(function () {
+            let asiakasId = $(this).data("asiakasid");
+            let url = '/Asiakkaat/_DetailsPartial/' + asiakasId;
+            $.get(url, (data) => {
+                $("#divAsiakasModal").replaceWith(data);
+                $("#divAsiakasModal").modal('show');
+            });
+        });
+        $(".asiakasDeleteToModal").click(function () {
+            let asiakasId = $(this).data("asiakasid");
+            let url = '/Asiakkaat/_DeletePartial/' + asiakasId;
+            $.get(url, (data) => {
+                $("#divAsiakasModal").replaceWith(data);
+                $("#divAsiakasModal").modal('show');
+            });
+        });
+    </script>
+}

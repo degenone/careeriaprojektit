@@ -1,0 +1,180 @@
+﻿@page "/grid"
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<div class="container"><ConnectionError ErrorOn="@ErrorOn" ErrorMsg="@ErrorMsg" /></div>
+<div class="container ml-0 pl-0">
+    <PiAddress @ref="Pi" />
+    <fieldset class="d-block">
+        <h2 class="border-bottom">Draw on grid</h2>
+        <EditForm Model="@grid" OnValidSubmit="@HandleValidSubmitAsync">
+            <div class="form-group">
+                <label>
+                    Hold 'Ctrl' to draw with color:
+                    <input type="color"
+                           class="color-picker"
+                           name="paste-color"
+                           title="Hold 'Shift' to copy while hovering over the grid bellow."
+                           @bind="copiedColor" />
+                </label>
+            </div>
+            <div class="form-group led-grid">
+                @for (int i = 0; i < grid.Colors.Length; i++)
+                {
+                    int at = i;
+                    <input class="led-color-picker"
+                           type="color"
+                           title="Select a color for LED #@i"
+                           @bind="grid.Colors[at]"
+                           @onmouseover="@(e => HandleMouseOver(e, at))"
+                           @onmouseout="HandleMouseOut" />
+                }
+            </div>
+            <div class="form-group">
+                <input class="btn btn-outline-success" type="submit" value="Submit" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="HandleClearLedsAsync">Clear grid</button>
+            </div>
+        </EditForm>
+    </fieldset>
+    <RotateGrid GetApiUrl="@GetApiUrl" HandleErrorShow="HandleErrorShow" />
+</div>
+
+@code {
+    //https://docs.microsoft.com/en-us/aspnet/core/tutorials/build-a-blazor-app?view=aspnetcore-5.0&pivots=webassembly
+    //https://docs.microsoft.com/en-us/aspnet/core/blazor/forms-validation?view=aspnetcore-5.0#handle-form-submission
+    //https://docs.microsoft.com/en-us/aspnet/core/blazor/call-web-api?view=aspnetcore-5.0&pivots=webassembly
+
+    private PiAddress Pi;
+    private LedGridModel grid = new();
+    private string copiedColor = "#000000";
+    private int hoverredIdx = -1;
+    private static readonly JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+    public bool ErrorOn = false;
+    public string ErrorMsg = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && await Pi.SetState())
+        {
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.GetAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await JsonSerializer.DeserializeAsync<LedGridModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    grid.Colors = result.Colors;
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+            finally
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        if (Pi.IsValid)
+        {
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.PostAsJsonAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/", grid);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+        }
+    }
+
+    private void HandleMouseOver(MouseEventArgs e, int at)
+    {
+        hoverredIdx = at;
+        if (e.CtrlKey)
+        {
+            grid.Colors[hoverredIdx] = copiedColor;
+        }
+        else if (e.ShiftKey)
+        {
+            copiedColor = grid.Colors[hoverredIdx];
+        }
+    }
+
+    public string GetApiUrl()
+    {
+        if (Pi.IsValid)
+        {
+            return $"{Pi.Address.Ip}:{Pi.Address.Port}";
+        }
+        else
+        {
+            Task.Run(async () => await Pi.IpInput.FocusAsync());
+            return string.Empty;
+        }
+    }
+
+    private void HandleMouseOut() => hoverredIdx = -1;
+
+    private async Task HandleClearLedsAsync()
+    {
+        if (Pi.IsValid)
+        {
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.GetAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/clear/");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    grid.DefaultGrid();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+        }
+        else
+        {
+            await Pi.IpInput.FocusAsync();
+        }
+    }
+
+    public void HandleErrorShow(string msg)
+    {
+        ErrorOn = true;
+        ErrorMsg = msg;
+        StateHasChanged();
+    }
+}

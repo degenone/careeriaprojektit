@@ -1,0 +1,107 @@
+﻿@model PagedList.PagedList<WebAppTilausDB.Models.Henkilot>
+@using PagedList.Mvc;
+@{
+    ViewBag.Count = 0;
+    ViewBag.Title = "Henkilöt";
+}
+
+<h2 id="otsikko">Henkilöt</h2>
+<p class="text-danger">@ViewBag.HenkiloVirhe</p>
+@using (Html.BeginForm("Index", "Henkilot", FormMethod.Get))
+{
+    <div class="input-group">
+        <p class="px-1">@Html.Label("Etsi henkilöä osoitteen perusteella:")</p>
+        <p class="px-1">@Html.TextBox("osoiteFilter", ViewBag.OsoiteFilter as string, new { @class = "form-control" })</p>
+        <p class="px-1">@Html.Label("Esimies ID:n perusteella:")</p>
+        <p class="px-1">@Html.Hidden("EsimiesID", ViewBag.EsimiesID as string, new { @id = "EsimiesID", @class = "form-control" })</p>
+        <p class="px-1">@Html.DropDownList("EsimiesIDt", null, htmlAttributes: new { @id = "esimiesFilter", @class = "form-control" })</p>
+        <p class="px-1"><input type="submit" value="Etsi" class="form-control" /></p>
+    </div>
+}
+<table class="table table-hover">
+    <tr class="table-primary">
+        <th><a id="henkiloCreateToModal" class="btn btn-sm btn-primary @(Session["Oikeudet"].Equals("Näytä") ? "disabled" : "")"><img src="~/Content/Icons/file-plus.svg" /></a></th>
+        <th>Etunimi</th>
+        <th>Sukunimi</th>
+        <th>Osoite</th>
+        <th>Esimies ID</th>
+        <th>Sahkoposti</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="@(ViewBag.Count % 2 != 0 ? "table-dark" : "table-default")">
+            <td>
+                @if (Session["Oikeudet"].Equals("Näytä"))
+                {
+                    <a class="btn btn-sm btn-primary henkiloDetailsToModal" data-henkiloid="@item.Henkilo_id"><img src="~/Content/Icons/info-square.svg" /></a>
+
+                }
+                else
+                {
+                    <a class="btn btn-sm btn-primary henkiloEditToModal" data-henkiloid="@item.Henkilo_id"><i class="fas fa-edit"></i></a>
+                    <a class="btn btn-sm btn-primary henkiloDetailsToModal" data-henkiloid="@item.Henkilo_id"><img src="~/Content/Icons/info-square.svg" /></a>
+                    <a class="btn btn-sm btn-primary henkiloDeleteToModal" data-henkiloid="@item.Henkilo_id"><img src="~/Content/Icons/trash-fill.svg" /></a>
+                }
+            </td>
+            <td>@Html.DisplayFor(modelItem => item.Etunimi)</td>
+            <td>@Html.DisplayFor(modelItem => item.Sukunimi)</td>
+            <td>@Html.DisplayFor(modelItem => item.Osoite)</td>
+            <td>@Html.DisplayFor(modelItem => item.Esimies)</td>
+            <td>@Html.DisplayFor(modelItem => item.Sahkoposti)</td>
+        </tr>
+        ViewBag.Count++;
+    }
+
+</table>
+<div id="divHenkiloModal"></div>
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home")
+</div>
+
+Sivu @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new {
+    page,
+    osoiteFilter = ViewBag.OsoiteFilter,
+    esimiesID = ViewBag.EsimiesID
+}))
+
+@section scripts{
+    <script type="text/javascript">
+        $("#henkiloCreateToModal").click(function () {
+            let url = '/Henkilot/_CreatePartial';
+            $.get(url, (data) => {
+                $("#divHenkiloModal").replaceWith(data);
+                $("#divHenkiloModal").modal('show');
+            });
+        });
+        $(".henkiloEditToModal").click(function () {
+            let henkiloId = $(this).data("henkiloid");
+            let url = '/Henkilot/_EditPartial/' + henkiloId;
+            $.get(url, (data) => {
+                $("#divHenkiloModal").replaceWith(data);
+                $("#divHenkiloModal").modal('show');
+            });
+        });
+        $(".henkiloDetailsToModal").click(function () {
+            let henkiloId = $(this).data("henkiloid");
+            let url = '/Henkilot/_DetailsPartial/' + henkiloId;
+            $.get(url, (data) => {
+                $("#divHenkiloModal").replaceWith(data);
+                $("#divHenkiloModal").modal('show');
+            });
+        });
+        $(".henkiloDeleteToModal").click(function () {
+            let henkiloId = $(this).data("henkiloid");
+            let url = '/Henkilot/_DeletePartial/' + henkiloId;
+            $.get(url, (data) => {
+                $("#divHenkiloModal").replaceWith(data);
+                $("#divHenkiloModal").modal('show');
+            });
+        });
+        $("#esimiesFilter").on("change", () => {
+            let selValue = $("#esimiesFilter").val();
+            document.getElementById("EsimiesID").value = selValue;
+        });
+    </script>
+}

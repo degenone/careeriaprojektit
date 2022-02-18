@@ -1,0 +1,49 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+    {% for o in object_list %}
+        <div class="card list-card" data-snippet-url="{% url 'snippet-detail' o.id %}">
+            <div class="card-header">
+                <h2 class="card-title">[{{ o.code_lang }}] | {{ o.title }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="card-code">{{ o.get_as_element|safe }}</div>
+            </div>
+            <div class="card-footer d-flex">
+                <a class="text-reset footer-btn p-1 align-self-center me-3" title="Käyttäjän profiili" href="{% url 'profile' o.owner.username %}">Tekijä: {{ o.owner.username }}</a>
+                {% if o.comments.all|length == 1 %}
+                    <p class="align-self-center p-1 mb-0 footer-text">{{ o.comments.all|length }} kommentti</p>
+                {% else %}
+                    <p class="align-self-center p-1 mb-0 footer-text">{{ o.comments.all|length }} kommenttia</p>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Koodipätkiä ei ole.</h2>
+                {% if user.is_authenticated %}
+                    <em class="card-text">Haluatko olla ensimmäinen? <a href="{% url 'snippet-create' %}">Lisää omasi.</a></em>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    {% if is_paginated %}
+        <div class="border-top">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="mt-2 btn btn-outline-info">Ensimmäinen</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="mt-2 btn btn-outline-info"><i class="fas fa-angle-double-left"></i></a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <button class="mt-2 btn btn-info" disabled>{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="mt-2 btn btn-outline-info">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="mt-2 btn btn-outline-info"><i class="fas fa-angle-double-right"></i></a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="mt-2 btn btn-outline-info">Viimeinen</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock content%}

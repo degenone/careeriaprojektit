@@ -1,0 +1,208 @@
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-width: 10vh;
+    background-color: honeydew;
+}
+
+.nav-title {
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    font-size: 22px;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: space-around;
+    width: 35%;
+    letter-spacing: 2px;
+}
+
+.nav-links li a,
+.nav-title a {
+    text-decoration: none;
+    color: #282c34;
+}
+
+.nav-links li {
+    list-style: none;
+}
+
+.burger {
+    display: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.burger div {
+    width: 25px;
+    height: 3px;
+    background-color: #282c34;
+    margin: 5px;
+}
+/* 
+@media only screen and (max-width: 1300px) {
+    .nav-links {
+        letter-spacing: 0;
+    }
+} */
+
+@media screen and (max-width: 1180px) {
+    body{
+        overflow-x: hidden;
+    }
+
+    .nav-links {
+        position: absolute;
+        right: 0;
+        height: 90vh;
+        top: 5vh;
+        background-color: honeydew;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 50%;
+        transform: translateX(100%);
+        transition: transform 0.5s ease-in;
+        z-index: 2;
+    }
+
+    .nav-links li {
+        opacity: 0;
+    }
+
+    .burger {
+        display: block;
+    }
+}
+
+.nav-active {
+    transform: translateX(0%);
+}
+
+.nav-links li[nlfade1='1'] {
+    animation: navlinksfade 500ms ease forwards 500ms;
+}
+
+.nav-links li[nlfade2='1'] {
+    animation: navlinksfade 500ms ease forwards 600ms;
+}
+
+.nav-links li[nlfade3='1'] {
+    animation: navlinksfade 500ms ease forwards 700ms;
+}
+
+.nav-links li[nlfade4='1'] {
+    animation: navlinksfade 500ms ease forwards 800ms;
+}
+
+.nav-links li[nlfade5='1'] {
+    animation: navlinksfade 500ms ease forwards 900ms;
+}
+
+.nav-links li[nlfade6='1'] {
+    animation: navlinksfade 500ms ease forwards 1000ms;
+}
+
+@keyframes navlinksfade {
+    from {
+        opacity: 0;
+        transform: translateX(50%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+}
+
+.cross .line1 {
+    transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.cross .line2 {
+    opacity: 0;
+}
+
+.cross .line3 {
+    transform: rotate(45deg) translate(-5px, -6px);
+}
+
+main {
+    background-color: #282c34;
+    min-height: 80vh;
+    max-width: 1024px;
+    margin: auto;
+    padding-top: 0px;
+    color: honeydew;
+}
+
+.nav-account {
+    position: fixed;
+    top: 0;
+    right: 0;
+    transform: translate(-40%, 5%);
+    border: 3px solid black;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.user-icon {
+    height: 50px;
+    cursor: pointer;
+}
+
+.nav-account-options {
+    position: absolute;
+    top: 45px;
+    right: 0px;
+    width: 200px;
+    background-color: #282c34;
+    border: 1px solid honeydew;
+}
+
+.nav-account-options li {
+    list-style: none;
+    margin: 10px 15px;
+}
+
+.nav-account-options li a {
+    color: honeydew;
+    letter-spacing: 3px;
+    text-decoration: none;
+}
+
+.nav-modal-control {
+    margin: 0;
+    cursor: pointer;
+    color: #282c34;
+    letter-spacing: 3px;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transition: 250ms ease-out;
+    z-index: 3;
+}
+
+.modal-content {
+    position: absolute;
+    width: 400px;
+    height: 450px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 250ms ease-out;
+    background-color: #282c34;
+    color: honeydew;
+}
+
+.modal-content .kirjautuminen .form-container form {
+    width: 80%;
+}

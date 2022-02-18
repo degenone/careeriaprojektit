@@ -1,0 +1,13 @@
+asgiref
+certifi
+chardet
+Django
+django-cors-headers
+djangorestframework
+idna
+Pygments
+pytz
+sqlparse
+urllib3
+whitenoise
+psycopg2-binary

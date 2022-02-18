@@ -1,0 +1,12 @@
+﻿.led-grid {
+    display: grid;
+    grid-template-columns: repeat(8, var(--unit));
+    grid-template-rows: repeat(8, var(--unit));
+    gap: .5rem;
+}
+
+.color-picker,
+.led-color-picker {
+    width: var(--unit);
+    height: var(--unit);
+}

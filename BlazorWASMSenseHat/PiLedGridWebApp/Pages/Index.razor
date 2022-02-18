@@ -1,0 +1,179 @@
+﻿@page "/"
+@using System.Text.Json
+@inject IJSRuntime JS
+@inject HttpClient Http
+@implements IDisposable
+
+<div class="container"><ConnectionError ErrorOn="@ErrorOn" ErrorMsg="@ErrorMsg" /></div>
+<div class="container ml-0 pl-0">
+    <PiAddress @ref="Pi" />
+    <div class="row">
+        <div class="col-12">
+            <h2 class="border-bottom">Telemetry from Sense HAT</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <label>
+                Temperature correction:
+                <input class="form-control" type="number" name="temp-correction" step="0.5" @bind="tmpCorrecton" />
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <h3>Temperature:</h3>
+        </div>
+        <div class="col-lg-8">
+            <h3>@(telemetry is not null ? telemetry.Temperature - tmpCorrecton : "N/A") &deg;C</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <h3>Relative humidity:</h3>
+        </div>
+        <div class="col-lg-8">
+            <h3>@(telemetry is not null ? telemetry.Humidity : "N/A") &percnt;</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <h3>Pressure:</h3>
+        </div>
+        <div class="col-lg-8">
+            <h3>@(telemetry is not null ? telemetry.Pressure : "N/A") mbar</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <h3>North:</h3>
+        </div>
+        <div class="col-lg-8">
+            <h3>@(telemetry is not null ? telemetry.North : "N/A")&deg;</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <label>
+                Get Sense HAT Telemetry:
+                <button class="btn btn-outline-info" @onclick="HandleGetTelemetryClickAsync" disabled="@btnDisabled">Get</button>
+            </label>
+        </div>
+    </div>
+</div>
+
+@code {
+    private PiAddress Pi;
+    private TelemetryModel telemetry = new();
+    private Timer aTimer;
+    private bool btnDisabled = true;
+    private float _tmpCrr;
+    private float tmpCorrecton
+    {
+        get { return _tmpCrr; }
+        set
+        {
+            _tmpCrr = value;
+            HandleOnChangeAsync();
+        }
+    }
+    private static readonly JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+    public bool ErrorOn = false;
+    public string ErrorMsg = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            bool success = float.TryParse(
+                (await JS.InvokeAsync<string>("handleLocalStorage", "get", "tmpCorrection")).Replace('.', ','),
+                out float val);
+            _tmpCrr = success ? val : 0;
+            if (await Pi.SetState() && await GetTelemetryAsync())
+            {
+                SetInterval();
+            }
+            else
+            {
+                btnDisabled = false;
+            }
+            StateHasChanged();
+        }
+    }
+
+    private void SetInterval()
+    {
+        if (aTimer is null)
+        {
+            btnDisabled = true;
+            aTimer = new Timer(5000);
+            aTimer.Elapsed += async (sender, e) => await GetTelemetryAsync();
+            aTimer.AutoReset = true;
+            aTimer.Enabled = true;
+        }
+        else if (!aTimer.Enabled)
+        {
+            btnDisabled = true;
+            aTimer.Start();
+        }
+        StateHasChanged();
+    }
+
+    private async Task<bool> GetTelemetryAsync()
+    {
+        if (Pi.IsValid)
+        {
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.GetAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/telemetry/");
+                if (resp.IsSuccessStatusCode)
+                {
+                    telemetry = await resp.Content.ReadFromJsonAsync<TelemetryModel>();
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+                btnDisabled = true;
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+                btnDisabled = false;
+                aTimer?.Stop();
+                return false;
+            }
+            finally
+            {
+                StateHasChanged();
+            }
+        }
+        return false;
+    }
+
+    private async Task HandleGetTelemetryClickAsync()
+    {
+        if (Pi.IsValid && await GetTelemetryAsync())
+        {
+            SetInterval();
+            await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+        }
+        else
+        {
+            await Pi.IpInput.FocusAsync();
+        }
+    }
+
+    private async Task HandleOnChangeAsync() => await JS.InvokeVoidAsync("handleLocalStorage", "set", "tmpCorrection", tmpCorrecton);
+
+    public void Dispose()
+    {
+        btnDisabled = false;
+        aTimer?.Stop();
+        aTimer?.Dispose();
+    }
+}

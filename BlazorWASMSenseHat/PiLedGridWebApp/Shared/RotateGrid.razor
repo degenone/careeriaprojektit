@@ -1,0 +1,67 @@
+﻿@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<div class="d-flex pt-1 mt-2 border-top">
+    <div>
+        <label class="mb-0">Rotate:</label>
+        <div>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "0")' disabled="@BtnsDisabled">0&deg;</button>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "90")' disabled="@BtnsDisabled">90&deg;</button>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "180")' disabled="@BtnsDisabled">180&deg;</button>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "270")' disabled="@BtnsDisabled">270&deg;</button>
+        </div>
+    </div>
+    <div class="ml-3">
+        <label class="mb-0">Flip:</label>
+        <div>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "horizontal")' disabled="@BtnsDisabled"><span class="oi oi-transfer"></span></button>
+            <button class="btn btn-outline-secondary" @onclick='e => Rotate(e, "vertical")' disabled="@BtnsDisabled"><span class="oi oi-transfer rotate-icon"></span></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private static readonly JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+    class Orientation
+    {
+        public string Value { get; set; }
+        public Orientation(string value)
+        {
+            Value = value;
+        }
+    }
+    [Parameter]
+    public Func<string> GetApiUrl { get; set; }
+    [Parameter]
+    public EventCallback<string> HandleErrorShow { get; set; }
+    [Parameter]
+    public bool BtnsDisabled { get; set; }
+
+    private async Task Rotate(MouseEventArgs e, string to)
+    {
+        string details = GetApiUrl?.Invoke();
+        if (!string.IsNullOrWhiteSpace(details))
+        {
+            string url = $"http://{details}/api/orientation/";
+            try
+            {
+                var resp = await Http.PostAsJsonAsync(url, new Orientation(to));
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", details);
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    await HandleErrorShow.InvokeAsync(err.Message);
+                }
+            }
+            catch (HttpRequestException)
+            {
+                await HandleErrorShow.InvokeAsync(string.Empty);
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+<div class="card">
+    <h4 class="card-header">Uusi koodipätkä</h4>
+    <form method="POST" class="card-body mx-5" id="snippet-post-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-group">
+            {{ form.title.errors }}
+            <label class="{{ form.label_class }}" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            {{ form.code.errors }}
+            <label class="{{ form.label_class }}" for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+            {{ form.code }}
+        </div>
+        <div class="row">
+            <div class="form-group col-md-4 mt-2">
+                {{ form.language.errors }}
+                <label class="{{ form.label_class }}" for="{{ form.language.id_for_label }}">{{ form.language.label }}</label>
+                {{ form.language }}
+            </div>
+            <div class="form-group col-md-4 mt-2">
+                {{ form.style.errors }}
+                <label class="{{ form.label_class }}" for="{{ form.style.id_for_label }}">{{ form.style.label }}</label>
+                {{ form.style }}
+            </div>
+            <div class="form-group col-md-4 mt-2 d-flex align-items-center">
+                {{ form.linenos.errors }}
+                {{ form.linenos }}
+                <label class="form-check-label ms-1" for="{{ form.linenos.id_for_label }}">{{ form.linenos.label }}</label>
+            </div>
+        </div>
+    </form>
+    <div class="card-footer ps-5">
+        <button type="submit" form="snippet-post-form" class="btn btn-outline-info mx-3">Tallenna</button>
+        {% if object %}
+            <a href="{% url 'snippet-detail' object.id %}" class="btn btn-outline-secondary">Peruuta</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

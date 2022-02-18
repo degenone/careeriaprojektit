@@ -1,0 +1,30 @@
+﻿@model WebAppTilausDB.Models.Tilaukset
+
+<div class="modal" id="divTilausModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tilauksen ID:@Html.DisplayFor(model => model.TilausID) lisätiedot</h2>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>@Html.DisplayNameFor(model => model.Asiakkaat.Nimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Asiakkaat.Nimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Tilauspvm)</dt>
+                    <dd>@(Model.Tilauspvm == null ? "" : ((DateTime)Model.Tilauspvm).ToString("d/M/yyyy"))</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Toimituspvm)</dt>
+                    <dd>@(Model.Toimituspvm == null ? "" : ((DateTime)Model.Toimituspvm).ToString("d/M/yyyy"))</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Toimitusosoite)</dt>
+                    <dd>@Html.DisplayFor(model => model.Toimitusosoite)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postitoimipaikka)</dt>
+                    <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postitoimipaikka)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postinumero)</dt>
+                    <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postinumero)</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

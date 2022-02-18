@@ -1,0 +1,66 @@
+﻿@inject IJSRuntime JS
+
+<div class="d-block mb-3">
+    <fieldset class="@formVisability">
+        <legend class="border-bottom">Raspberry Pi Details</legend>
+        <EditForm EditContext="@editContext">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="form-group">
+                <label @ref="IpInput">
+                    IP address:
+                    <InputText @bind-Value="Address.Ip" class="form-control" DisplayName="IP address" />
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    Api Port:
+                    <InputNumber @bind-Value="Address.Port" class="form-control" DisplayName="Api Port" />
+                </label>
+            </div>
+        </EditForm>
+    </fieldset>
+    <button type="button" class="btn btn-outline-info" @onclick="ToggleForm">@btnText</button>
+</div>
+
+@code {
+    public PiAddressModel Address = new();
+    public bool IsValid = false;
+    public ElementReference IpInput;
+    private EditContext editContext;
+    private bool hideForm = false;
+    private string btnText => hideForm ? "Change Pi details" : "Hide Pi details";
+    private string formVisability => hideForm ? "hidden-elem" : "";
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Address);
+        editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    }
+
+    private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs args) => IsValid = editContext.Validate();
+
+    public async Task<bool> SetState()
+    {
+        string address = await JS.InvokeAsync<string>("handleLocalStorage", "get", "piAddress");
+        if (!string.IsNullOrWhiteSpace(address))
+        {
+            string[] addrs = address.Split(':');
+            Address.Ip = addrs[0];
+            Address.Port = int.Parse(addrs[1]);
+            hideForm = true;
+            IsValid = true;
+            StateHasChanged();
+            return true;
+        }
+        return false;
+    }
+
+    private void ToggleForm()
+    {
+        if (IsValid = editContext.Validate())
+        {
+            hideForm = !hideForm;
+        }
+    }
+}

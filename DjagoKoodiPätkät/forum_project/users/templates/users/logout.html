@@ -1,0 +1,11 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+<div class="card">
+    <h4 class="card-header">Kirjauduit ulos onnistuneesti.</h4>
+    <div class="card-body pb-3 pt-4">
+        <small class="text-muted">
+            <a href="{% url 'login' %}">Kirjaudu sisään uudelleen</a>
+        </small>
+    </div>
+</div>
+{% endblock content %}

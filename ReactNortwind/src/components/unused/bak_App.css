@@ -1,0 +1,269 @@
+/* --- Sivun pää sisältö --- */
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #282c34;
+  color: white;
+  text-align: center;
+  min-height: 80vh;
+}
+
+.App,
+.Viestit,
+.md5 {
+  font-size: calc(10px + 2vmin);
+}
+
+.Aika {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.Viestit {
+  background-color: rgb(13, 120, 153);
+  min-width: 40vw;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.Viestit-header {
+  background-color: rgb(40, 46, 71);
+  margin-bottom: 3vh;
+}
+
+#nwCustomers table {
+  min-width: 50vw;
+}
+
+.NWCustomerAdd {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+  min-width: 15vw;
+}
+
+.NWCustomerAdd input,
+.NWCustomerAdd button {
+  margin: 5px 0px 5px 0px;
+}
+
+.NWCustomerAdd button {
+  width: 50%;
+  align-self: flex-end;
+}
+
+.nwCustomers-buttons {
+  display: flex;
+  align-items: flex-start;
+}
+
+.kirjautuminen {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+.kirjautuminen input {
+  margin-bottom: 5px;
+}
+
+.App-logo {
+  animation: App-logo-spin infinate 20s linear;
+  height: 15vmin;
+  pointer-events: none;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+/* --- Sivun navigaatio --- */
+nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-width: 10vh;
+  background-color: honeydew;
+}
+
+.nav-title {
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  font-size: 22px;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: space-around;
+  width: 35%;
+  letter-spacing: 2px;
+}
+
+.nav-links li a,
+.nav-title a {
+  text-decoration: none;
+}
+
+.nav-links li {
+  list-style: none;
+}
+
+.burger {
+  display: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.burger div {
+  width: 25px;
+  height: 3px;
+  background-color: #282c34;
+  margin: 5px;
+}
+
+@media only screen and (max-width: 1500px) {
+  .nav-links {
+    letter-spacing: 0;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  body{
+      overflow-x: hidden;
+  }
+
+  .nav-links {
+      position: absolute;
+      right: 0;
+      height: 90vh;
+      top: 5vh;
+      background-color: honeydew;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 50%;
+      transform: translateX(100%);
+      transition: transform 0.5s ease-in;
+  }
+
+  .nav-links li {
+      opacity: 0;
+  }
+
+  .burger {
+      display: block;
+  }
+}
+
+.nav-active {
+  transform: translateX(0%);
+}
+
+.nav-links li[nlfade1='1'] {
+  animation: navlinksfade 500ms ease forwards 500ms;
+}
+
+.nav-links li[nlfade2='1'] {
+  animation: navlinksfade 500ms ease forwards 600ms;
+}
+
+.nav-links li[nlfade3='1'] {
+  animation: navlinksfade 500ms ease forwards 700ms;
+}
+
+.nav-links li[nlfade4='1'] {
+  animation: navlinksfade 500ms ease forwards 800ms;
+}
+
+.nav-links li[nlfade5='1'] {
+  animation: navlinksfade 500ms ease forwards 900ms;
+}
+
+.nav-links li[nlfade6='1'] {
+  animation: navlinksfade 500ms ease forwards 1000ms;
+}
+
+@keyframes navlinksfade {
+  from {
+      opacity: 0;
+      transform: translateX(50%);
+  }
+  
+  to {
+      opacity: 1;
+      transform: translateX(0%);
+  }
+}
+
+.cross .line1 {
+  transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.cross .line2 {
+  opacity: 0;
+}
+
+.cross .line3 {
+  transform: rotate(45deg) translate(-5px, -6px);
+}
+/* --- Sivun alaosa --- */
+footer {
+  min-height: 10vh;
+  background-color: honeydew;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+/* --- Taulukko --- */
+th,
+td {
+  text-align: left;
+  padding: 5px;
+}
+
+th {
+  background-color: rgb(8, 29, 146);
+}
+
+tr:nth-child(even) {
+  background-color: rgb(62, 186, 243);
+  color: black;
+}
+
+.btn-wobbly[wobble='1'] {
+  animation: wobble 1s 1;
+}
+/* --- Napin keinuminen --- */
+@keyframes wobble {
+  25% {
+    transform: rotate(15deg);
+  }
+  50% {
+    transform: rotate(-30deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+/* --- Teksti --- */
+.text-red {
+  color: red;
+  font-size: 14px;
+}

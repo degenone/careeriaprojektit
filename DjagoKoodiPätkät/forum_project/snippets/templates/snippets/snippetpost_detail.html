@@ -1,0 +1,130 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+    <div class="card">
+        <h3 class="card-header">[{{ object.code_lang }}] | Poustattu: {{ object.created|date:"d.m.Y" }}</h3>
+        <div class="card-body iframe-container">
+            <div class="w-100"><iframe class="w-100" srcdoc="{{ object.highlighted }}" frameborder="0" onload="calcHeight()"></iframe></div>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            {% if not object.deleted %}
+                {% if object.owner == user %}
+                    <a href="{% url 'snippet-update' object.id %}" class="btn btn-outline-success me-3">Päivitä</a>
+                    <a href="{% url 'snippet-delete' object.id %}" class="btn btn-outline-danger me-3">Poista</a>
+                {% else %}
+                    <a class="text-reset footer-btn p-1 me-3" title="Käyttäjän profiili" href="{% url 'profile' object.owner.username %}">Tekijä: {{ object.owner.username }}</a>
+                    <a class="text-reset footer-btn p-1 me-3" title="Koodipätkän raakaversio" href="/api/snippets-posts/{{ object.id }}/highlight/" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                    <p class="copy-code p-1 me-3 mb-0" onclick="copyCodeToClipboard(this)" data-code="{{ object.code }}"><i class="far fa-copy"></i></p>
+                {% endif %}
+            {% endif %}
+            <a class="btn btn-outline-info" href="{% url 'home' %}">Takaisin etusivulle</a>
+        </div>
+    </div>
+    {% if user.is_authenticated and not object.deleted %}{% include 'snippets/_comment_form.html' with form=form post=object.id top=1 %}{% endif %}
+    <div class="comment-section d-grid gap-3 w-100">
+        {% for comment in object.comments.all %}
+            {% if comment.parent == null %}
+                <div class="comment-tree">
+                    <div class="card" id="comment-{{ comment.id }}" {% if not comment.deleted %}data-code="{{ comment.code }}" data-language="{{ comment.language }}" data-style="{{ comment.style }}" data-linenos="{{ comment.linenos }}" data-reply-to="@{{ comment.owner.username }}"{% endif %}>
+                        <div class="card-body snippetcomment-code{% if comment.deleted %} deleted-comment{% endif %}">{{ comment.get_as_element|safe }}</div>
+                        {% if not comment.deleted %}
+                            {% if user.is_authenticated and user == comment.owner %}
+                                <div class="card-body snippetcomment-edit hidden-element"></div>
+                            {% endif %}
+                            <div class="card-footer d-flex align-items-center">
+                                <button class="btn btn-outline-primary me-3" onclick="showReplyForm('comment-{{ comment.id }}')" {% if not user.is_authenticated %}disabled{% endif %}>Vastaa</button>
+                                {% if user.is_authenticated and user == comment.owner %}
+                                    <button class="btn btn-outline-success btn-edit me-3" onclick="editingSnippetComment('comment-{{ comment.id }}')">Päivitä</button>
+                                    <button class="btn btn-outline-danger btn-delete me-3" onclick="deleteSnippetComment('{{ comment.id }}')">Poista</button>
+                                    <button class="btn btn-outline-success btn-save me-3 hidden-element" form="snippetcomment-u-form" type="submit">Tallenna</button>
+                                    <button class="btn btn-outline-secondary btn-cancel me-3 hidden-element" onclick="editingSnippetComment('comment-{{ comment.id }}')">Peruuta</button>
+                                {% else %}
+                                    <p class="card-text my-auto me-3">[{{ comment.code_lang }}]</p>
+                                    <a class="text-reset footer-btn p-1 me-3" title="Käyttäjän profiili" href="{% url 'profile' comment.owner.username %}">{{ comment.owner.username }}</a>
+                                    <a class="text-reset footer-btn p-1 me-3" title="Koodipätkän raakaversio" href="/api/snippets-comments/{{ comment.id }}/highlight/" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                                    <p class="copy-code p-1 me-3 mb-0" onclick="copyCodeToClipboard(this)" data-code="{{ comment.code }}"><i class="far fa-copy"></i></p>
+                                {% endif %}
+                                <small class="card-text text-muted">{{ comment.created|date:"d.m.Y" }}</small>
+                            </div>
+                            {% if user.is_authenticated %}
+                                <div class="snippetcomment-reply-div"></div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% for reply in comment.replies.all reversed %}
+                        <div class="card ms-3" id="reply-{{ reply.id }}" data-comment-id="{{ comment.id }}" {% if not reply.deleted %}data-code="{{ reply.code }}" data-language="{{ reply.language }}" data-style="{{ reply.style }}"  data-linenos="{{ reply.linenos }}" data-reply-to="@{{ reply.owner.username }}"{% endif %}>
+                            <div class="card-body snippetcomment-code">{{ reply.get_as_element|safe }}</div>
+                            {% if not reply.deleted %}
+                                {% if user.is_authenticated and user.id == reply.owner.id %}<div class="card-body snippetcomment-edit hidden-element"></div>{% endif %}
+                                <div class="card-footer d-flex align-items-center">
+                                    <button class="btn btn-outline-primary me-3" onclick="showReplyForm('reply-{{ reply.id }}')" {% if not user.is_authenticated %}disabled{% endif %}>Vastaa</button>
+                                    {% if user.is_authenticated and user.id == reply.owner.id %}
+                                        <button class="btn btn-outline-success btn-edit me-3" onclick="editingSnippetComment('reply-{{ reply.id }}')">Päivitä</button>
+                                        <button class="btn btn-outline-danger btn-delete me-3" onclick="deleteSnippetComment('{{ reply.id }}')">Poista</button>
+                                        <button class="btn btn-outline-success btn-save me-3 hidden-element" type="submit" form="snippetcomment-u-form">Tallenna</button>
+                                        <button class="btn btn-outline-secondary btn-cancel me-3 hidden-element" onclick="editingSnippetComment('reply-{{ reply.id }}')">Peruuta</button>
+                                    {% else %}
+                                        <p class="card-text my-auto me-3">[{{ reply.code_lang }}]</p>
+                                        <a class="text-reset footer-btn p-1 me-3" title="Käyttäjän profiili" href="{% url 'profile' reply.owner.username %}">{{ reply.owner.username }}</a>
+                                        <a class="text-reset footer-btn p-1 me-3" title="Koodipätkän raakaversio" href="/api/snippets-comments/{{ reply.id }}/highlight/" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                                        <p class="copy-code p-1 me-3 mb-0" onclick="copyCodeToClipboard(this)" data-code="{{ reply.code }}"><i class="far fa-copy"></i></p>
+                                    {% endif %}
+                                        <small class="card-text text-muted">{{ reply.created|date:"d.m.Y" }}</small>
+                                    {% if reply.edited != null %}
+                                        <small class="text-muted ms-1">| Muokattu: {{ reply.edited|date:"d.m.Y G:i"}}</small>
+                                    {% endif %}
+                                </div>
+                                {% if user.is_authenticated %}<div class="snippetcomment-reply-div"></div>{% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="card"><h4 class="card-header">Ei kommentteja...</h4></div>
+        {% endfor%}
+    </div>
+    {% if user.is_authenticated %}
+        <div id="hidden-u-form" class="hidden-element">
+            <form action="{% url 'comment-cud' %}" id="snippetcomment-u-form" method="POST">
+                {% csrf_token %}
+                <input type="hidden" id="id__method" name="_method" value="put">
+                <input type="hidden" id="id_post-id" name="post-id" value="{{ object.id }}">
+                <input type="hidden" id="id_comment-id" name="comment-id" value="0">
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                    {{ form.code.errors }}
+                    <label class="{{ form.label_class }}" for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+                    {{ form.code }}
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-4 mt-2">
+                        {{ form.language.errors }}
+                        <label class="{{ form.label_class }}" for="{{ form.language.id_for_label }}">{{ form.language.label }}</label>
+                        {{ form.language }}
+                    </div>
+                    <div class="form-group col-md-4 mt-2">
+                        {{ form.style.errors }}
+                        <label class="{{ form.label_class }}" for="{{ form.style.id_for_label }}">{{ form.style.label }}</label>
+                        {{ form.style }}
+                    </div>
+                    <div class="form-group col-md-4 mt-2 d-flex align-items-center">
+                        {{ form.linenos.errors }}
+                        {{ form.linenos }}
+                        <label class="form-check-label ms-1" for="{{ form.linenos.id_for_label }}">{{ form.linenos.label }}</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="hidden-element" id="hidden-c-form">{% include 'snippets/_comment_form.html' with form=form post=object.id top=0 %}</div>
+        <form action="{% url 'comment-cud' %}" method="POST" class="hidden-element" id="hidden-d-form">
+            {% csrf_token %}
+            <input type="hidden" id="id__method" name="_method" value="delete">
+            <input type="hidden" id="id_post-id" name="post-id" value="{{ object.id }}">
+            <input type="hidden" id="id_comment-id" name="comment-id" value="0">
+        </form>
+    {% endif %}
+    <script type="text/javascript">
+        var lastEdit = '';
+        var lastReply = '';
+    </script>
+{% endblock content %}

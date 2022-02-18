@@ -1,0 +1,218 @@
+﻿@page "/messages"
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<style>
+    .message-box {
+        color: @message.ForegroundColor;
+        background-color: @message.BackgroundColor;
+    }
+    .message-box::placeholder {
+        color: @message.ForegroundColor;
+    }
+</style>
+
+<div class="container"><ConnectionError ErrorOn="ErrorOn" ErrorMsg="@ErrorMsg" /></div>
+<div class="container ml-0 pl-0">
+    <PiAddress @ref="Pi" />
+    <h2 class="border-bottom">Messages</h2>
+    <div>
+        <h4 class="subtitle">Time</h4>
+        <label>
+            Show the time on grid:
+            <button class="btn btn-outline-success" @onclick="ShowTime" disabled="@btnsDisabled">Show</button>
+        </label>
+    </div>
+    <EditForm EditContext="editContext" OnValidSubmit="HandleValidMessageSubmitAsync">
+        <h4 class="subtitle">Text</h4>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label>
+                Show a message on grid:
+                <InputTextArea class="form-control message-box" @bind-Value="message.Message" placeholder="Your message here..." />
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Time beteen letters (@message.Speed s, lower = faster scroll):
+                <input class="form-control-range" type="range" value="10" min="1" max="100" @onchange="HandleSpeedChange" />
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Text color:
+                <input class="form-control" type="color" @bind="message.ForegroundColor" />
+            </label>
+            <label class="ml-2">
+                Background color:
+                <input class="form-control" type="color" @bind="message.BackgroundColor" />
+            </label>
+        </div>
+        <div class="form-group"><input class="btn btn-outline-success" type="submit" value="Show Message" disabled="@btnsDisabled" /></div>
+    </EditForm>
+    <form @onsubmit="HandleValidCountdownSubmitAsync">
+        <h4 class="subtitle">Countdown</h4>
+        <div class="form-group">
+            <label>
+                Show a countdown on grid (@countdown s):
+                <input class="form-control-range" type="range" @bind="countdown" min="2" max="9" />
+            </label>
+        </div>
+        <input class="btn btn-outline-success" type="submit" value="Countdown" disabled="@btnsDisabled" />
+    </form>
+    <RotateGrid GetApiUrl="GetApiUrl" HandleErrorShow="HandleErrorShow" BtnsDisabled="btnsDisabled" />
+</div>
+
+
+@code {
+    private PiAddress Pi;
+    private MessageModel message = new();
+    private EditContext editContext;
+    private int countdown = 5;
+    private bool btnsDisabled = false;
+    private static readonly JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+    public bool ErrorOn = false;
+    public string ErrorMsg = string.Empty;
+
+    protected override void OnInitialized() => editContext = new(message);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) => await Pi.SetState();
+
+    private async Task ShowTime()
+    {
+        if (Pi.IsValid)
+        {
+            btnsDisabled = true;
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.GetAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/messages/");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+            finally
+            {
+                btnsDisabled = false;
+            }
+        }
+        else
+        {
+            await Pi.IpInput.FocusAsync();
+        }
+    }
+
+    private async Task HandleValidMessageSubmitAsync()
+    {
+        if (Pi.IsValid)
+        {
+            btnsDisabled = true;
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.PostAsJsonAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/messages/", message, options);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+            finally
+            {
+                btnsDisabled = false;
+            }
+        }
+        else
+        {
+            await Pi.IpInput.FocusAsync();
+        }
+    }
+
+    private async Task HandleValidCountdownSubmitAsync()
+    {
+        if (Pi.IsValid)
+        {
+            btnsDisabled = true;
+            try
+            {
+                ErrorOn = false;
+                var resp = await Http.GetAsync($"http://{Pi.Address.Ip}:{Pi.Address.Port}/api/countdown/{countdown}/");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ResponseJsonModel>();
+                    await JS.InvokeVoidAsync("handleLocalStorage", "set", "piAddress", $"{Pi.Address.Ip}:{Pi.Address.Port}");
+                }
+                else
+                {
+                    var err = await JsonSerializer.DeserializeAsync<ResponseJsonModel>(await resp.Content.ReadAsStreamAsync(), options);
+                    ErrorOn = true;
+                    ErrorMsg = err.Message;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ErrorOn = true;
+            }
+            finally
+            {
+                btnsDisabled = false;
+            }
+        }
+        else
+        {
+            await Pi.IpInput.FocusAsync();
+        }
+    }
+
+    private void HandleSpeedChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value as string, out int speedInt))
+        {
+            message.Speed = speedInt / 100f;
+        }
+    }
+
+    public string GetApiUrl()
+    {
+        if (Pi.IsValid)
+        {
+            return $"{Pi.Address.Ip}:{Pi.Address.Port}";
+        }
+        else
+        {
+            Task.Run(async () => await Pi.IpInput.FocusAsync());
+            return string.Empty;
+        }
+    }
+
+    public void HandleErrorShow(string msg)
+    {
+        ErrorOn = true;
+        ErrorMsg = msg;
+        StateHasChanged();
+    }
+}

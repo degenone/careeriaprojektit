@@ -1,0 +1,85 @@
+﻿@model WebAppTilausDB.Models.Tilausrivit
+
+    <div class="modal" id="divTilausModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" form="CreateForm"><img src="~/Content/Icons/check-box.svg" /></button>
+                    <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<h2>Tilausrivin lisätiedot</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TilausriviID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TilausriviID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TilausID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TilausID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Tilaukset.Toimitusosoite)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Tilaukset.Toimitusosoite)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Tuotteet.Nimi)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Tuotteet.Nimi)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Maara)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Maara)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Ahinta)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Ahinta)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @if (Session["Oikeudet"].Equals("Näytä"))
+    {
+        @Html.ActionLink("Takaisin luetteloon", "Index")
+    }
+    else
+    {
+        @Html.ActionLink("Muokkaa", "Edit", new { id = Model.TilausriviID }) <text>|</text>
+        @Html.ActionLink("Takaisin luetteloon", "Index")
+    }
+</p>

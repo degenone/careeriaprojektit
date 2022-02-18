@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Error</title>
+</head>
+<body>
+    <hgroup>
+        <h1>Error.</h1>
+        <h2>Hups, jokin meni pieleen.</h2>
+        <h2>An error occurred while processing your request.</h2>
+        <h2 class="text-danger">@ViewBag.Error</h2>
+        @Html.ActionLink("Etusivu", "Index", "Home")
+    </hgroup>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends 'snippets/base.html' %}
+{% block content %}
+<div class="card">
+    {% if user.id == profile.id %}
+        <h3 class="card-header">Minun profiilini</h3>
+    {% else %}
+        <h3 class="card-header">{{ profile.username }}n profiili</h3>
+    {% endif %}
+    <div class="card-body mx-5">
+        {% if user.id == profile.id %}
+            <form method="POST" id="profile-update-form">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-3">Muokkaa profiilia</legend>
+                    {{ u_form.non_field_errors }}
+                    {{ u_form.username.errors }}
+                    <label class="{{ u_form.label_class }}" for="{{ u_form.id_for_label }}">{{ u_form.username.label }}</label>
+                    {{ u_form.username }}
+                    {{ p_form.non_field_errors }}
+                    {{ p_form.bio.errors }}
+                    <label class="{{ u_form.label_class }}" for="{{ p_form.bio.id_for_label }}">{{ p_form.bio.label }}</label>
+                    {{ p_form.bio }}
+                </fieldset>
+            </form>
+        {% else %}
+            <h4 class="card-title border-bottom mb-3">Bio:</h4>
+            {% if profile.profile.bio %}
+                <p class="card-text">{{ profile.profile.bio }}</p>
+            {% else %}
+                <p class="card-text text-muted">Täällä ei näytä olevan mitään. :/</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% if user.id == profile.id %}
+        <div class="card-footer ps-5">
+            <button type="submit" form="profile-update-form" class="btn btn-outline-info ms-3">Päivitä</button>
+        </div>
+    {% endif %}
+</div>
+<div class="card">
+    <!-- <div class="card-header">Jotain?</div> -->
+    <div class="card-body mx-5">
+        <div class="user-posts">
+            <h4 class="card-title border-bottom lh-base">Koodipätkät</h4>
+            <ul class="list-group list-group-flush">
+                {% for post in profile.posts.all %}
+                    <li class="list-group-item"><a href="{% url 'snippet-detail' post.id %}" class="text-reset{% if post.deleted %} text-decoration-line-through text-muted{% endif %}">{{ post.title }}</a></li>
+                {% empty %}
+                    <li class="list-group-item">Ei koodipätkiä</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="user-comments mt-3">
+            <h4 class="card-title border-bottom lh-base">Kommentit</h4>
+            <ul class="list-group list-group-flush">
+                {% for comment in profile.snippetcomments.all %}
+                    {% if not comment.deleted %}
+                        <li class="list-group-item"><a href="{% url 'snippet-detail' comment.post.id %}" title="Kommentti koodipätkään: '{{ comment.post.title }}'" class="text-reset">{{ comment.code }}</a></li>
+                    {% endif %}
+                {% empty %}
+                    <li class="list-group-item">Ei kommentteja</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a class="btn btn-outline-info" href="{% url 'home' %}">Takaisin etusivulle</a>
+    </div>
+</div>
+{% endblock content %}

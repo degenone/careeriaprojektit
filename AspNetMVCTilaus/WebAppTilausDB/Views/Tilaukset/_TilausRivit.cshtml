@@ -1,0 +1,34 @@
+﻿@model IEnumerable<WebAppTilausDB.ViewModels.TilauksenRivit>
+
+<table class="table">
+    <thead>
+        <tr>
+            @if (Session["Oikeudet"].Equals("Muokkaa") || Session["Oikeudet"].Equals("Admin"))
+            {
+                <th><a class="btn btn-sm btn-primary" onclick="tilausriviCreateToModal('@ViewBag.TilausID')"><img src="~/Content/Icons/file-plus.svg" /></a></th>
+            }
+            <th>@Html.DisplayNameFor(model => model.Tuote)</th>
+            <th>@Html.DisplayNameFor(model => model.Maara)</th>
+            <th>@Html.DisplayNameFor(model => model.Ahinta)</th>
+            <th>@Html.DisplayNameFor(model => model.Summa)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                @if (Session["Oikeudet"].Equals("Muokkaa") || Session["Oikeudet"].Equals("Admin"))
+                {
+                    <td>
+                        <a class="btn btn-sm btn-primary" onclick="tilausriviEditToModal('@item.TilausriviID')"><i class="fas fa-edit"></i></a>
+                        <a class="btn btn-sm btn-primary" onclick="tilausriviDeleteToModal('@item.TilausriviID')"><img src="~/Content/Icons/trash.svg" /></a>
+                    </td>
+                }
+                <td>@Html.DisplayFor(modelItem => item.Tuote)</td>
+                <td>@Html.DisplayFor(modelItem => item.Maara)</td>
+                <td>@Html.DisplayFor(modelItem => item.Ahinta)</td>
+                <td>@Html.DisplayFor(modelItem => item.Summa)</td>
+            </tr>
+        }
+    </tbody>
+</table>

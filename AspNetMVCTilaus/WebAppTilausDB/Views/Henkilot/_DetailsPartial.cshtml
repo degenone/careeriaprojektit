@@ -1,0 +1,32 @@
+﻿@model WebAppTilausDB.Models.Henkilot
+
+<div class="modal" id="divHenkiloModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Henkilön lisätiedot</h2>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>@Html.DisplayNameFor(model => model.Henkilo_id)</dt>
+                    <dd>@Html.DisplayFor(model => model.Henkilo_id)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Etunimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Etunimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Sukunimi)</dt>
+                    <dd>@Html.DisplayFor(model => model.Sukunimi)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Osoite)</dt>
+                    <dd>@Html.DisplayFor(model => model.Osoite)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Postinumero)</dt>
+                    <dd>@Html.DisplayFor(model => model.Postinumero)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Sahkoposti)</dt>
+                    <dd>@Html.DisplayFor(model => model.Sahkoposti)</dd>
+                    <dt>@Html.DisplayNameFor(model => model.Esimies)</dt>
+                    <dd>@Html.DisplayFor(model => model.Esimies)</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

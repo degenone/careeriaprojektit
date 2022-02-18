@@ -1,0 +1,65 @@
+﻿@model IEnumerable<WebAppTilausDB.Models.Tilausrivit>
+
+@{
+    ViewBag.Title = "Tilausrivit";
+    ViewBag.Count = 0;
+}
+
+<h2 id="otsikko">Tilausrivit</h2>
+
+<p>
+    <a href="/Tilausrivit/Create" class="btn btn-primary @(Session["Oikeudet"].Equals("Näytä") ? "disabled" : "")">Lisää uusi tilausrivi</a>
+</p>
+<table class="table table-hover">
+    <tr class="table-primary">
+        <th>
+            @Html.DisplayNameFor(model => model.Tilaukset.Toimitusosoite)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Tuotteet.Nimi)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Maara)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Ahinta)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr class="@(ViewBag.Count % 2 != 0 ? "table-dark" : "table-default")">
+        <td>
+            @Html.DisplayFor(modelItem => item.Tilaukset.Toimitusosoite)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tuotteet.Nimi)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Maara)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Ahinta)
+        </td>
+        <td>
+            @if (Session["Oikeudet"].Equals("Näytä"))
+            {
+                @Html.ActionLink("Lisätiedot", "Details", new { id = item.TilausriviID })
+            }
+            else
+            {
+                @Html.ActionLink("Muokkaa", "Edit", new { id = item.TilausriviID }) <text>|</text>
+                @Html.ActionLink("Lisätiedot", "Details", new { id = item.TilausriviID }) <text>|</text>
+                @Html.ActionLink("Poista", "Delete", new { id = item.TilausriviID })
+            }
+        </td>
+    </tr>
+    ViewBag.Count++;
+}
+
+</table>
+
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home") |
+    <a href="#otsikko">Takaisin ylös</a>
+</div>

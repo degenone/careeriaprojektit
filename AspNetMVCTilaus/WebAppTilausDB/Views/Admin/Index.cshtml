@@ -1,0 +1,45 @@
+﻿@model IEnumerable<WebAppTilausDB.Models.Kayttajat>
+
+@{
+    ViewBag.Count = 0;
+    ViewBag.Title = "Admin sivu";
+}
+
+<h2 id="otsikko">Admin sivu</h2>
+
+<table class="table table-hover">
+    <tr class="table-primary">
+        <th>
+            @Html.DisplayNameFor(model => model.KayttajaNimi)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Roolit.Rooli)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr class="@(ViewBag.Count % 2 != 0 ? "table-dark" : "table-default")">
+        <td>
+            @Html.DisplayFor(modelItem => item.KayttajaNimi)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Roolit.Rooli)
+        </td>
+        <td>
+            @if (!item.KayttajaNimi.Equals("AdminTero"))
+            {
+                @Html.ActionLink("Muokkaa", "Edit", new { id=item.KayttajaId }) <text>|</text>
+                @Html.ActionLink("Poista", "Delete", new { id=item.KayttajaId })
+            }
+        </td>
+    </tr>
+    ViewBag.Count++;
+}
+
+</table>
+
+<div>
+    @Html.ActionLink("Etusivu", "Index", "Home") |
+    <a href="#otsikko">Takaisin ylös</a>
+</div>

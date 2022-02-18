@@ -1,0 +1,39 @@
+<div class="card" {% if not top %}id="reply-card"{% endif %}>
+    {% if top %}
+        <h4 class="card-header">Jätä kommentti</h4>
+    {% endif %}
+    <form method="POST" class="card-body mx-5" id="snippetcomment{% if not top %}-reply{% endif %}-c-form" action="{% url 'comment-cud' %}">
+        {% csrf_token %}
+        <input type="hidden" id="id_post-id" name="post-id" value="{{ post }}">
+        <input type="hidden" id="id_comment-id" name="comment-id" value="0">
+        {{ form.non_field_errors }}
+        <div class="form-group">
+            {{ form.code.errors }}
+            <label class="{{ form.label_class }}" for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+            {{ form.code }}
+        </div>
+        <div class="row">
+            <div class="form-group col-md-4 mt-2">
+                {{ form.language.errors }}
+                <label class="{{ form.label_class }}" for="{{ form.language.id_for_label }}">{{ form.language.label }}</label>
+                {{ form.language }}
+            </div>
+            <div class="form-group col-md-4 mt-2">
+                {{ form.style.errors }}
+                <label class="{{ form.label_class }}" for="{{ form.style.id_for_label }}">{{ form.style.label }}</label>
+                {{ form.style }}
+            </div>
+            <div class="form-group col-md-4 mt-2 d-flex align-items-center">
+                {{ form.linenos.errors }}
+                {{ form.linenos }}
+                <label class="form-check-label ms-1" for="{{ form.linenos.id_for_label }}">{{ form.linenos.label }}</label>
+            </div>
+        </div>
+    </form>
+    <div class="card-footer ps-5">
+        <button type="submit" form="snippetcomment{% if not top %}-reply{% endif %}-c-form" class="btn btn-outline-info mx-3">Tallenna</button>
+        {% if not top %}
+            <button class="btn btn-outline-secondary" id="btn-cancel-reply">Peruuta</button>
+        {% endif %}
+    </div>
+</div>

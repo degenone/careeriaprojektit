@@ -1,0 +1,34 @@
+﻿@model WebAppTilausDB.Models.Asiakkaat
+
+<div class="modal" id="divAsiakasModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Asiakkaan ID:@Html.DisplayFor(model => model.AsiakasID) lisätiedot</h2>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <dl class="dl-horizontal">
+                        <dt>@Html.DisplayNameFor(model => model.Nimi)</dt>
+                        <dd>@Html.DisplayFor(model => model.Nimi)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Osoite)</dt>
+                        <dd>@Html.DisplayFor(model => model.Osoite)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postitoimipaikka)</dt>
+                        <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postitoimipaikka)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Postitoimipaikat.Postinumero)</dt>
+                        <dd>@Html.DisplayFor(model => model.Postitoimipaikat.Postinumero)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Vastuumyyja)</dt>
+                        <dd>@Html.DisplayFor(model => model.VastuumyyjaNimi)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Luottoraja)</dt>
+                        <dd>@Html.DisplayFor(model => model.Luottoraja)</dd>
+                        <dt>@Html.DisplayNameFor(model => model.www_sivut)</dt>
+                        <dd>@Html.DisplayFor(model => model.www_sivut)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>

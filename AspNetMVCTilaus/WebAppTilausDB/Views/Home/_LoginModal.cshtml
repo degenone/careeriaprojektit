@@ -1,0 +1,42 @@
+﻿@model WebAppTilausDB.Models.Kayttajat
+
+<div class="modal" id="loginRuutu">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kirjautuminen TilausDB-järjestelmään</h2>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Authorize", "Home", FormMethod.Post, new { @id = "loginForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.KayttajaId)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.KayttajaNimi, htmlAttributes: new { @class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.KayttajaNimi, new { htmlAttributes = new { @class = "form-control" }})
+                            @Html.ValidationMessageFor(model => model.KayttajaNimi, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PassWord, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.PassWord, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.PassWord, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <label class="text-danger">@Html.DisplayFor(model => model.KirjautumisVirheViesti)</label>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" form="loginForm"><img src="~/Content/Icons/check-box.svg" /></button>
+                <button class="btn btn-info" data-dismiss="modal"><img src="~/Content/Icons/x-square.svg" /></button>
+            </div>
+        </div>
+    </div>
+</div>
