@@ -9,7 +9,7 @@ Kokeilin Blazor WASM:iä ja tein web portaalin, jolla voi hallita Raspberry Pi:n
 ## [DjangoKoodiPätkät](https://github.com/degenone/careeriaprojektit/tree/main/DjangoKoodiP%C3%A4tk%C3%A4t/)
 StackOverflow:sta kiteistetty versio. [Django REST framework tutoriaalin](https://www.django-rest-framework.org/tutorial/1-serialization/) pohjalta jatkokehitin tämän.
 
-## [WebApiNortwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNortwind/)
+## [WebApiNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNorthwind/)
 Northwind näyte tietokantaan .Net Web API rajapinta, JWT kirjautumisen kanssa.
 
 ## [ReactNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/ReactNorthwind/)
