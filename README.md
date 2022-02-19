@@ -13,10 +13,10 @@ StackOverflow:sta kiteistetty versio. [Django REST framework tutoriaalin](https:
 Northwind näyte tietokantaan .Net Web API rajapinta, JWT kirjautumisen kanssa.
 
 ## [ReactNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/ReactNorthwind/)
-React.Js web sovellus. Yhteydessä Northwind tietokantaan [WebApiNortwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNortwind/) projektilla.
+React.Js web sovellus. Yhteydessä Northwind tietokantaan [WebApiNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNorthwind/) projektilla.
 
 ## [ReactNativeNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/ReactNativeNorthwind/)
-React Native mobiili sovellus, jolla voi mm. tehdä CRUD toiminnot Northwind tietokantaan [WebApiNortwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNortwind/) projektin kautta, sekä selata TekstiTV:tä.
+React Native mobiili sovellus, jolla voi mm. tehdä CRUD toiminnot Northwind tietokantaan [WebApiNorthwind](https://github.com/degenone/careeriaprojektit/tree/main/WebApiNorthwind/) projektin kautta, sekä selata TekstiTV:tä.
 
 ## [AspNetMVCTilaus](https://github.com/degenone/careeriaprojektit/tree/main/AspNetMVCTilaus/)
 ASP.NET MVC .Net Framework projekti. Tuotteiden, tilausten ja asiakkaiden hallintaan sovellus. Opintojen alkuvaihelta, käyttäjän kirjautuminen oli kokeilua ja on toteutettu huonosti.
